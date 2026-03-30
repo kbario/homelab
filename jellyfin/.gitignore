@@ -1,0 +1,8 @@
+config/
+cache/
+media/
+media2/
+fonts/
+
+tailscale/state/
+!tailscale/config/

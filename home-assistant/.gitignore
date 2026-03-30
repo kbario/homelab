@@ -1,0 +1,8 @@
+tailscale/state
+matter
+home-assistant/config/**
+
+!home-assistant/config/automations.yaml
+!home-assistant/config/configuration.yaml
+!home-assistant/config/scripts.yaml
+!home-assistant/config/scenes.yaml

@@ -1,0 +1,47 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: ts-home-assistant
+    hostname: home-assistant
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_EXTRA_ARGS=--advertise-tags=tag:container
+      - TS_SERVE_CONFIG=/config/home-assistant.json
+      - TS_STATE_DIR=/var/lib/tailscale
+    volumes:
+      - ${PWD}/tailscale/state:/var/lib/tailscale
+      - ${PWD}/tailscale/config:/config
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+      - sys_module
+    restart: unless-stopped
+  home-assistant:
+    container_name: home-assistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - ${PWD}/home-assistant/config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: service:tailscale
+    environment:
+      TZ: Australia/Perth
+  matter-server:
+    image: ghcr.io/matter-js/python-matter-server:stable
+    container_name: matter-server
+    restart: unless-stopped
+    # Required for mDNS to work correctly
+    network_mode: service:tailscale
+    security_opt:
+      # Needed for Bluetooth via dbus
+      - apparmor:unconfined
+    volumes:
+      # Create an .env file that sets the USERDIR environment variable.
+      - ${PWD}/matter/data:/data/
+      # Required for Bluetooth via D-Bus
+      - /run/dbus:/run/dbus:ro
+    # If you adjust command line, make sure to pass the default CMD arguments too:
+    #command: --storage-path /data --paa-root-cert-dir /data/credentials --bluetooth-adapter 0
