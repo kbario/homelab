@@ -1,0 +1,8 @@
+incoming/
+data/
+config/beets/*.db
+config/beets/*.blb
+config/beets/beet.log
+config/beets/.cache/
+*.pyc
+.DS_Store

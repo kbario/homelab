@@ -42,6 +42,7 @@ Each service is reachable at `https://<service>.<tailnet>.ts.net` via Tailscale 
 - **`jellyfin/`** — Media server. Binds `media/` and `media2/` (read-only) as libraries, plus a custom `fonts/` dir for subtitle burn-in.
 - **`immich/`** — Photo and video backup. Composed of `immich-server`, `immich-machine-learning`, `valkey` (redis), and `postgres` (pgvector). Reads `UPLOAD_LOCATION`, DB credentials, and `DB_DATA_LOCATION` from `.env`.
 - **`navidrome/`** — Music streaming (OpenSubsonic). Bind-mounts `jellyfin/media/music` read-only; data in `navidrome/data/`. Shares files with Jellyfin but scrapes its own art/metadata (Last.fm + Deezer); set `ND_LASTFM_APIKEY` / `ND_LASTFM_SECRET` in `navidrome/.env`.
+- **`music-pipeline/`** — USB ingest tooling (not a Tailscale service). Copies rips from a USB stick, converts to FLAC, tags via beets/MusicBrainz, writes into `jellyfin/media/music`. See [`music-pipeline/README.md`](music-pipeline/README.md).
 
 ## Prerequisites
 

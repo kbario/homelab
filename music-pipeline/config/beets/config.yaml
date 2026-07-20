@@ -1,0 +1,55 @@
+# Beets config for USB → FLAC → jellyfin/media/music ingest.
+# Paths are container paths; scripts mount host dirs accordingly.
+
+directory: /music
+library: /data/library.db
+art_filename: cover
+threaded: yes
+original_date: no
+per_disc_numbering: no
+
+plugins: convert fetchart embedart chroma fromfilename
+
+paths:
+  default: $albumartist/$album%aunique{}/$track - $title
+  singleton: Non-Album/$artist - $title
+  comp: Compilations/$album%aunique{}/$track - $title
+
+import:
+  write: yes
+  copy: no
+  move: yes
+  resume: ask
+  incremental: no
+  quiet_fallback: asis
+  timid: no
+  log: /data/beet-import.log
+
+convert:
+  auto: yes
+  format: flac
+  ffmpeg: /usr/bin/ffmpeg
+  threads: 2
+
+fetchart:
+  auto: yes
+  cautious: no
+  cover_names:
+    - cover
+    - folder
+    - front
+    - albumart
+    - album
+  sources:
+    - filesystem
+    - coverart
+    - itunes
+    - amazon
+    - albumart
+
+embedart:
+  auto: yes
+  ifempty: yes
+
+chroma:
+  auto: yes
