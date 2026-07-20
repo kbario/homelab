@@ -22,10 +22,14 @@ flowchart LR
       IMS --> Redis[(valkey)]
       IMS --> ML[machine-learning]
     end
+    subgraph nd [navidrome stack]
+      tsND[tailscale sidecar] --> ND[Navidrome]
+    end
   end
   Tailnet((Tailnet)) --- tsHA
   Tailnet --- tsJF
   Tailnet --- tsIM
+  Tailnet --- tsND
 ```
 
 ## Access
@@ -37,6 +41,7 @@ Each service is reachable at `https://<service>.<tailnet>.ts.net` via Tailscale 
 - **`home-assistant/`** — Home Assistant plus a Matter server for smart-home devices. Runs privileged with host `dbus` and Bluetooth access; `TZ=Australia/Perth`.
 - **`jellyfin/`** — Media server. Binds `media/` and `media2/` (read-only) as libraries, plus a custom `fonts/` dir for subtitle burn-in.
 - **`immich/`** — Photo and video backup. Composed of `immich-server`, `immich-machine-learning`, `valkey` (redis), and `postgres` (pgvector). Reads `UPLOAD_LOCATION`, DB credentials, and `DB_DATA_LOCATION` from `.env`.
+- **`navidrome/`** — Music streaming (OpenSubsonic). Bind-mounts `jellyfin/media/music` read-only; data in `navidrome/data/`. Shares files with Jellyfin but scrapes its own art/metadata (Last.fm + Deezer); set `ND_LASTFM_APIKEY` / `ND_LASTFM_SECRET` in `navidrome/.env`.
 
 ## Prerequisites
 
@@ -49,7 +54,7 @@ Each service is reachable at `https://<service>.<tailnet>.ts.net` via Tailscale 
 Bring up any service from its own directory:
 
 ```bash
-cd <service>          # home-assistant | jellyfin | immich
+cd <service>          # home-assistant | jellyfin | immich | navidrome
 cp .env.example .env  # or create .env with the vars above
 docker compose up -d
 ```

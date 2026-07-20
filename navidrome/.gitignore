@@ -1,0 +1,4 @@
+data/
+
+tailscale/state/
+!tailscale/config/

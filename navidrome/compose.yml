@@ -1,0 +1,46 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: ts-navidrome
+    hostname: navidrome
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_EXTRA_ARGS=--advertise-tags=tag:container
+      - TS_SERVE_CONFIG=/config/navidrome.json
+      - TS_STATE_DIR=/var/lib/tailscale
+    volumes:
+      - ./tailscale/state:/var/lib/tailscale
+      - ./tailscale/config:/config
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+      - sys_module
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    restart: unless-stopped
+
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    user: "1000:1000"
+    network_mode: service:tailscale
+    depends_on:
+      - tailscale
+    environment:
+      ND_MUSICFOLDER: /music
+      ND_DATAFOLDER: /data
+      ND_LOGLEVEL: info
+      ND_SCANSCHEDULE: 1h
+      ND_SESSIONTIMEOUT: 24h
+      # Deezer needs no key (default agent). Last.fm fills album covers + bios.
+      ND_AGENTS: deezer,lastfm
+      ND_LASTFM_APIKEY: ${ND_LASTFM_APIKEY}
+      ND_LASTFM_SECRET: ${ND_LASTFM_SECRET}
+    volumes:
+      - ./data:/data
+      - type: bind
+        source: ../jellyfin/media/music
+        target: /music
+        read_only: true
+    restart: unless-stopped
