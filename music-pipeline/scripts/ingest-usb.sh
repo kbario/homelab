@@ -38,7 +38,10 @@ echo "  from: $SRC"
 echo "  to:   $DEST"
 
 mkdir -p "$DEST"
-rsync -a --info=progress2 "$SRC"/ "$DEST"/
+rsync -a --info=progress2 \
+  --exclude='._*' \
+  --exclude='.DS_Store' \
+  "$SRC"/ "$DEST"/
 
 echo
 echo "Done. Next:"

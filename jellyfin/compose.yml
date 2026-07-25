@@ -34,6 +34,11 @@ services:
       - type: bind
         source: ./media
         target: /media
+      # External HDD (The Bank) — movies stay on disk; overlays empty ./media/movies
+      - type: bind
+        source: /media/kbario/The Bank/Personal/Media/Movies
+        target: /media/movies
+        read_only: true
       - type: bind
         source: ./media2
         target: /media2

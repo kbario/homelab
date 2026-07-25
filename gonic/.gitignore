@@ -1,0 +1,9 @@
+.env
+data/
+
+tailscale/state/
+!tailscale/config/
+
+# Placeholder music root (Gonic requires GONIC_MUSIC_PATH; keep empty).
+music/*
+!music/.gitkeep

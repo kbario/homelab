@@ -4,6 +4,8 @@ Ingest CD rips (or other audio) from a USB stick, convert to **FLAC**, tag via M
 
 On-host optical ripping is not supported on this machine — rip on another PC, copy via USB, then run the scripts here.
 
+What is automated vs what you (or an agent) must run: [AUTOMATION.md](AUTOMATION.md). UI ideas for the remaining manual steps: [UI-SKETCH.md](UI-SKETCH.md).
+
 ## Layout
 
 ```
@@ -15,6 +17,8 @@ music-pipeline/
     ingest-usb.sh
     import-music.sh
     migrate-aiff.sh
+  AUTOMATION.md              # automated vs manual / agent
+  UI-SKETCH.md               # thin ingest UI sketch (not built)
 ```
 
 ## Typical session

@@ -33,6 +33,8 @@ services:
       ND_LOGLEVEL: info
       ND_SCANSCHEDULE: 1h
       ND_SESSIONTIMEOUT: 24h
+      # Purge renamed/deleted ghosts after full scans (e.g. AIFF→FLAC migrates).
+      ND_SCANNER_PURGEMISSING: full
       # Deezer needs no key (default agent). Last.fm fills album covers + bios.
       ND_AGENTS: deezer,lastfm
       ND_LASTFM_APIKEY: ${ND_LASTFM_APIKEY}

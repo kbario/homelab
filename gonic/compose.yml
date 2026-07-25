@@ -1,0 +1,45 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: ts-gonic
+    hostname: gonic
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_EXTRA_ARGS=--advertise-tags=tag:container
+      - TS_SERVE_CONFIG=/config/gonic.json
+      - TS_STATE_DIR=/var/lib/tailscale
+    volumes:
+      - ./tailscale/state:/var/lib/tailscale
+      - ./tailscale/config:/config
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+      - sys_module
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    restart: unless-stopped
+
+  gonic:
+    image: sentriz/gonic:latest
+    container_name: gonic
+    user: "1000:1000"
+    network_mode: service:tailscale
+    depends_on:
+      - tailscale
+    environment:
+      GONIC_MUSIC_PATH: /music
+      GONIC_PODCAST_PATH: /podcasts
+      GONIC_PLAYLISTS_PATH: /data/playlists
+      GONIC_CACHE_PATH: /data/cache
+      GONIC_DB_PATH: /data/gonic.db
+      GONIC_LISTEN_ADDR: 127.0.0.1:4747
+      # Music lives on Navidrome; this folder stays empty on purpose.
+      GONIC_SCAN_AT_START_ENABLED: "false"
+    volumes:
+      - ./data:/data
+      - ./music:/music
+      - type: bind
+        source: ../jellyfin/media/podcasts
+        target: /podcasts
+    restart: unless-stopped

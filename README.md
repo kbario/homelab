@@ -25,11 +25,15 @@ flowchart LR
     subgraph nd [navidrome stack]
       tsND[tailscale sidecar] --> ND[Navidrome]
     end
+    subgraph go [gonic stack]
+      tsGO[tailscale sidecar] --> GO[Gonic]
+    end
   end
   Tailnet((Tailnet)) --- tsHA
   Tailnet --- tsJF
   Tailnet --- tsIM
   Tailnet --- tsND
+  Tailnet --- tsGO
 ```
 
 ## Access
@@ -39,9 +43,10 @@ Each service is reachable at `https://<service>.<tailnet>.ts.net` via Tailscale 
 ## Services
 
 - **`home-assistant/`** — Home Assistant plus a Matter server for smart-home devices. Runs privileged with host `dbus` and Bluetooth access; `TZ=Australia/Perth`.
-- **`jellyfin/`** — Media server. Binds `media/` and `media2/` (read-only) as libraries, plus a custom `fonts/` dir for subtitle burn-in.
+- **`jellyfin/`** — Media server. Binds `media/` (music, podcasts) and `media2/` (read-only spare). Movies library bind-mounts `/media/kbario/The Bank/Personal/Media/Movies` read-only onto `/media/movies` (see `compose.yml`); keep The Bank plugged in. One-time host mount: `sudo jellyfin/scripts/install-the-bank-fstab.sh`. Custom `fonts/` for subtitle burn-in.
 - **`immich/`** — Photo and video backup. Composed of `immich-server`, `immich-machine-learning`, `valkey` (redis), and `postgres` (pgvector). Reads `UPLOAD_LOCATION`, DB credentials, and `DB_DATA_LOCATION` from `.env`.
-- **`navidrome/`** — Music streaming (OpenSubsonic). Bind-mounts `jellyfin/media/music` read-only; data in `navidrome/data/`. Shares files with Jellyfin but scrapes its own art/metadata (Last.fm + Deezer); set `ND_LASTFM_APIKEY` / `ND_LASTFM_SECRET` in `navidrome/.env`.
+- **`navidrome/`** — Music streaming (OpenSubsonic). Bind-mounts `jellyfin/media/music` read-only; data in `navidrome/data/`. Shares files with Jellyfin but scrapes its own art/metadata (Last.fm + Deezer); set `ND_LASTFM_APIKEY` / `ND_LASTFM_SECRET` in `navidrome/.env`. No podcasts — use Gonic for that.
+- **`gonic/`** — Podcasts (Subsonic). Bind-mounts `jellyfin/media/podcasts` read-write for RSS downloads; empty local `music/` stub (music stays on Navidrome). In Amperfy: Navidrome account = music, second Gonic account = podcasts. See [`gonic/README.md`](gonic/README.md).
 - **`music-pipeline/`** — USB ingest tooling (not a Tailscale service). Copies rips from a USB stick, converts to FLAC, tags via beets/MusicBrainz, writes into `jellyfin/media/music`. See [`music-pipeline/README.md`](music-pipeline/README.md).
 
 ## Prerequisites
@@ -55,7 +60,7 @@ Each service is reachable at `https://<service>.<tailnet>.ts.net` via Tailscale 
 Bring up any service from its own directory:
 
 ```bash
-cd <service>          # home-assistant | jellyfin | immich | navidrome
+cd <service>          # home-assistant | jellyfin | immich | navidrome | gonic
 cp .env.example .env  # or create .env with the vars above
 docker compose up -d
 ```
