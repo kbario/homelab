@@ -68,5 +68,6 @@ echo "Importing $TARGET → $MUSIC_DIR (FLAC + tags + art)"
 echo "Ambiguous MusicBrainz matches will prompt interactively."
 run_beet import "${EXTRA_ARGS[@]}" "$TARGET"
 
+fetch_lyrics
 navidrome_scan
 echo "Import finished."

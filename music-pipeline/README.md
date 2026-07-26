@@ -16,6 +16,8 @@ music-pipeline/
   scripts/
     ingest-usb.sh
     import-music.sh
+    fetch-lyrics.sh          # LRCLIB → sidecar .lrc/.txt
+    fetch_lyrics.py
     migrate-aiff.sh
   AUTOMATION.md              # automated vs manual / agent
   UI-SKETCH.md               # thin ingest UI sketch (not built)
@@ -34,7 +36,16 @@ cd ~/.homelab/music-pipeline
 ./scripts/import-music.sh             # pick the MusicBrainz match if prompted
 ```
 
-After import, sources under `incoming/` are moved/converted into `jellyfin/media/music` as FLAC and removed from staging. Navidrome gets a full scan when its container is running.
+After import, sources under `incoming/` are moved/converted into `jellyfin/media/music` as FLAC and removed from staging. The import then fetches **LRCLIB** sidecar lyrics (`.lrc` synced, or `.txt` plain) for any FLAC that does not already have one, then triggers a Navidrome full scan when its container is running.
+
+Amperfy reads those lyrics from Navidrome over OpenSubsonic — sync the Amperfy library after the first lyrics land. The Navidrome web player is not the primary lyrics check.
+
+### Backfill lyrics for the existing library
+
+```bash
+./scripts/fetch-lyrics.sh                       # whole library (skips existing sidecars)
+./scripts/fetch-lyrics.sh "Artist/Album"        # one album
+```
 
 ### Import only one staged album
 
@@ -57,7 +68,7 @@ One-shot for albums already under `jellyfin/media/music` (e.g. untagged AIFFs):
 ./scripts/migrate-aiff.sh "Artist/Album"
 ```
 
-This stages the album, removes the old files from the library tree, imports through beets (FLAC + tags + art), then rescans Navidrome.
+This stages the album, removes the old files from the library tree, imports through beets (FLAC + tags + art), fetches missing sidecar lyrics, then rescans Navidrome.
 
 ## Rip elsewhere (tips)
 
@@ -75,4 +86,6 @@ Untagged AIFF/WAV is fine — beets converts to FLAC and looks up tags (fingerpr
 - USB stick mounted and readable by your user
 - Navidrome container named `navidrome` (optional; scan is skipped if not running)
 
-Beets runs via `lscr.io/linuxserver/beets` (pulled on first import). Override with `BEETS_IMAGE=...` if needed.
+Beets runs via `lscr.io/linuxserver/beets` (pulled on first import). Override with `BEETS_IMAGE=...` if needed. Lyrics fetch uses `python:3.12-slim` (`LYRICS_IMAGE`) and installs `mutagen` at run time.
+
+Navidrome should prefer sidecars via `ND_LYRICSPRIORITY=.lrc,.txt,embedded` (set in `navidrome/compose.yml`). Redeploy that stack after changing the env.

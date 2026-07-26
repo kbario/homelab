@@ -39,6 +39,8 @@ services:
       ND_AGENTS: deezer,lastfm
       ND_LASTFM_APIKEY: ${ND_LASTFM_APIKEY}
       ND_LASTFM_SECRET: ${ND_LASTFM_SECRET}
+      # Sidecar lyrics from music-pipeline (LRCLIB), then embedded tags.
+      ND_LYRICSPRIORITY: .lrc,.txt,embedded
     volumes:
       - ./data:/data
       - type: bind
