@@ -17,7 +17,8 @@ Steps:
   1. Stage album into incoming/
   2. Remove originals from the library tree (replaced after import)
   3. beets import (convert → FLAC, MusicBrainz, art)
-  4. Navidrome full scan
+  4. Fetch LRCLIB sidecar lyrics for FLACs missing .lrc/.txt
+  5. Navidrome full scan
 
 Example:
   $(basename "$0")
@@ -66,5 +67,6 @@ else
   run_beet import "/incoming/$NAME"
 fi
 
+fetch_lyrics
 navidrome_scan
 echo "Migration finished. Check Navidrome/Jellyfin for: $REL"
