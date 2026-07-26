@@ -1,0 +1,6 @@
+.env
+data/
+backups/
+
+tailscale/state/
+!tailscale/config/

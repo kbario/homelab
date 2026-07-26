@@ -1,0 +1,39 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: ts-vaultwarden
+    hostname: vaultwarden
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_EXTRA_ARGS=--advertise-tags=tag:container
+      - TS_SERVE_CONFIG=/config/vaultwarden.json
+      - TS_STATE_DIR=/var/lib/tailscale
+    volumes:
+      - ./tailscale/state:/var/lib/tailscale
+      - ./tailscale/config:/config
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+      - sys_module
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    restart: unless-stopped
+
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    network_mode: service:tailscale
+    depends_on:
+      - tailscale
+    environment:
+      DOMAIN: ${DOMAIN}
+      ADMIN_TOKEN: ${ADMIN_TOKEN}
+      SIGNUPS_ALLOWED: "false"
+      INVITATIONS_ALLOWED: "true"
+      ROCKET_ADDRESS: 127.0.0.1
+      ROCKET_PORT: "8080"
+      WEBSOCKET_ENABLED: "true"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped

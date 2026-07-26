@@ -1,0 +1,63 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: ts-owntracks
+    hostname: owntracks
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_EXTRA_ARGS=--advertise-tags=tag:container
+      - TS_SERVE_CONFIG=/config/owntracks.json
+      - TS_STATE_DIR=/var/lib/tailscale
+    volumes:
+      - ./tailscale/state:/var/lib/tailscale
+      - ./tailscale/config:/config
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+      - sys_module
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    restart: unless-stopped
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: owntracks-mosquitto
+    network_mode: service:tailscale
+    depends_on:
+      - tailscale
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+
+  recorder:
+    image: owntracks/recorder:latest
+    container_name: owntracks-recorder
+    network_mode: service:tailscale
+    depends_on:
+      - mosquitto
+    environment:
+      OTR_HOST: 127.0.0.1
+      OTR_PORT: 1883
+      OTR_USER: ${OTR_USER}
+      OTR_PASS: ${OTR_PASS}
+      OTR_HTTPHOST: 127.0.0.1
+      OTR_HTTPPORT: 8083
+    volumes:
+      - ./recorder/store:/store
+    restart: unless-stopped
+
+  frontend:
+    image: owntracks/frontend:latest
+    container_name: owntracks-frontend
+    network_mode: service:tailscale
+    depends_on:
+      - recorder
+    environment:
+      SERVER_HOST: 127.0.0.1
+      SERVER_PORT: 8083
+    volumes:
+      - ./frontend/config.js:/usr/share/nginx/html/config/config.js:ro
+    restart: unless-stopped

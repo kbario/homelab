@@ -1,0 +1,11 @@
+.env
+
+mosquitto/config/passwd
+mosquitto/data/
+mosquitto/log/
+
+recorder/store/*
+!recorder/store/.gitkeep
+
+tailscale/state/
+!tailscale/config/

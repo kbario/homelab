@@ -1,0 +1,13 @@
+# Service account used by the recorder container.
+user recorder
+topic read owntracks/#
+
+# Household users — duplicate the block below for each person.
+# Username must match the topic path: owntracks/<username>/<device>
+user alice
+topic readwrite owntracks/alice/#
+topic read owntracks/+/+
+
+user bob
+topic readwrite owntracks/bob/#
+topic read owntracks/+/+

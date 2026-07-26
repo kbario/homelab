@@ -28,12 +28,23 @@ flowchart LR
     subgraph go [gonic stack]
       tsGO[tailscale sidecar] --> GO[Gonic]
     end
+    subgraph ot [owntracks stack]
+      tsOT[tailscale sidecar] --> MQTT[Mosquitto]
+      tsOT --> FE[Frontend]
+      MQTT --> REC[Recorder]
+      FE --> REC
+    end
+    subgraph vw [vaultwarden stack]
+      tsVW[tailscale sidecar] --> VW[Vaultwarden]
+    end
   end
   Tailnet((Tailnet)) --- tsHA
   Tailnet --- tsJF
   Tailnet --- tsIM
   Tailnet --- tsND
   Tailnet --- tsGO
+  Tailnet --- tsOT
+  Tailnet --- tsVW
 ```
 
 ## Access
@@ -47,6 +58,8 @@ Each service is reachable at `https://<service>.<tailnet>.ts.net` via Tailscale 
 - **`immich/`** — Photo and video backup. Composed of `immich-server`, `immich-machine-learning`, `valkey` (redis), and `postgres` (pgvector). Reads `UPLOAD_LOCATION`, DB credentials, and `DB_DATA_LOCATION` from `.env`.
 - **`navidrome/`** — Music streaming (OpenSubsonic). Bind-mounts `jellyfin/media/music` read-only; data in `navidrome/data/`. Shares files with Jellyfin but scrapes its own art/metadata (Last.fm + Deezer); set `ND_LASTFM_APIKEY` / `ND_LASTFM_SECRET` in `navidrome/.env`. No podcasts — use Gonic for that.
 - **`gonic/`** — Podcasts (Subsonic). Bind-mounts `jellyfin/media/podcasts` read-write for RSS downloads; empty local `music/` stub (music stays on Navidrome). In Amperfy: Navidrome account = music, second Gonic account = podcasts. See [`gonic/README.md`](gonic/README.md).
+- **`owntracks/`** — Private location tracking (MQTT + Recorder + Frontend). Tailnet-only; phones publish over MQTT, map at `https://owntracks.<tailnet>.ts.net`. See [`owntracks/README.md`](owntracks/README.md).
+- **`vaultwarden/`** — Password manager (Bitwarden-compatible). SQLite in `data/`; signups disabled, admin creates household users. See [`vaultwarden/README.md`](vaultwarden/README.md).
 - **`music-pipeline/`** — USB ingest tooling (not a Tailscale service). Copies rips from a USB stick, converts to FLAC, tags via beets/MusicBrainz, writes into `jellyfin/media/music`. See [`music-pipeline/README.md`](music-pipeline/README.md).
 
 ## Prerequisites
@@ -60,7 +73,7 @@ Each service is reachable at `https://<service>.<tailnet>.ts.net` via Tailscale 
 Bring up any service from its own directory:
 
 ```bash
-cd <service>          # home-assistant | jellyfin | immich | navidrome | gonic
+cd <service>          # home-assistant | jellyfin | immich | navidrome | gonic | owntracks | vaultwarden
 cp .env.example .env  # or create .env with the vars above
 docker compose up -d
 ```
