@@ -120,6 +120,8 @@ Sign up at [OpenCage](https://opencagedata.com/) (free tier), add to `.env`:
 OTR_GEOKEY=your-api-key
 ```
 
+[Dashboard here](https://opencagedata.com/dashboard#geocoding)
+
 Restart recorder: `docker compose restart recorder`.
 
 ## Home Assistant later

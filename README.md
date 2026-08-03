@@ -61,6 +61,7 @@ Each service is reachable at `https://<service>.<tailnet>.ts.net` via Tailscale 
 - **`owntracks/`** — Private location tracking (MQTT + Recorder + Frontend). Tailnet-only; phones publish over MQTT, map at `https://owntracks.<tailnet>.ts.net`. See [`owntracks/README.md`](owntracks/README.md).
 - **`vaultwarden/`** — Password manager (Bitwarden-compatible). SQLite in `data/`; signups disabled, admin creates household users. See [`vaultwarden/README.md`](vaultwarden/README.md).
 - **`music-pipeline/`** — USB ingest tooling (not a Tailscale service). Copies rips from a USB stick, converts to FLAC, tags via beets/MusicBrainz, writes into `jellyfin/media/music`. See [`music-pipeline/README.md`](music-pipeline/README.md).
+- **`github-runner/`** — Self-hosted GitHub Actions runner (host systemd service, not Docker). Bootstrap and migrate with `./scripts/setup.sh`. See [`github-runner/README.md`](github-runner/README.md).
 
 ## Prerequisites
 
@@ -79,6 +80,14 @@ docker compose up -d
 ```
 
 Once the sidecar authenticates, the service appears on the tailnet at `https://<service>.<tailnet>.ts.net`.
+
+Host-only tooling (no Compose):
+
+```bash
+cd github-runner
+cp .env.example .env
+./scripts/setup.sh
+```
 
 ## Repo layout
 

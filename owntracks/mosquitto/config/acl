@@ -4,10 +4,6 @@ topic read owntracks/#
 
 # Household users — duplicate the block below for each person.
 # Username must match the topic path: owntracks/<username>/<device>
-user alice
-topic readwrite owntracks/alice/#
-topic read owntracks/+/+
-
-user bob
-topic readwrite owntracks/bob/#
+user kyle
+topic readwrite owntracks/kyle/#
 topic read owntracks/+/+
